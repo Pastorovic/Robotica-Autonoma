@@ -1,8 +1,10 @@
-/***************************************
- *    Name:         cuadrado.cpp
- *    Description:
- *    Author:       David Pastor Sanz
- ***************************************/
+/**********************************************************
+ *    Name:         cuadrado.cpp                          *
+ *    Title:        Control de movimiento usand odometría *
+ *    Description:  El robot se mueve describiendo un     *
+ *                  cuadrado de 4 metros de lado          *
+ *    Author:       David Pastor Sanz                     *
+ **********************************************************/
 
 #include "/usr/local/Aria/include/Aria.h"
 #include <stdio.h>
