@@ -1,0 +1,13 @@
+# Compila el código para manejar el robot y poder simular en mobilesim
+# llamar a este script con dos parametros:
+#			1: nombre del archivo a compilar
+#			2: nombre del archivo compilado
+
+#!/bin/sh
+
+if [ $# != 2 ]; then
+	echo Require 2 arguments
+	exit 1
+fi
+
+g++ -Wall -o $2 -lAria -ldl -lpthread -L/usr/local/Aria/lib -I/usr/local/Aria/include $1

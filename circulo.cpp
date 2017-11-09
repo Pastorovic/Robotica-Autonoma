@@ -1,8 +1,8 @@
 /**********************************************************
- *    Name:         cuadrado.cpp                          *
+ *    Name:         circulo.cpp                           *
  *    Title:        Control de movimiento usand odometría *
  *    Description:  El robot se mueve describiendo un     *
- *                  cuadrado de 4 metros de lado          *
+ *                  círculo de dos metros de radio        *
  *    Author:       David Pastor Sanz                     *
  **********************************************************/
 
@@ -30,9 +30,13 @@ void checkConnection( ArRobotConnector &connector ) {
 }
 
 int main( int argc, char** argv ) {
-  // grados de giro y cantidad de traslación
-  int rot = 90;
-  int tra = 4000;
+  // variables necesarias
+  const float PI = 3.1415;
+  float radio = 2;
+  float speed = 500;
+  float perimeter = 2 * PI * radio;
+  float time_needed = perimeter / ( speed / 1000 );
+  float rotation = 360 / time_needed;
 
   // inicializar la libreria de Aria
   Aria::init();
@@ -65,43 +69,16 @@ int main( int argc, char** argv ) {
   ArLog::log( ArLog::Normal, "Motores encendidos\n Comenzando la simulación..." );
   ArUtil::sleep( 500 );
 
-  /* realización del cuadrado */
-  for( int i = 0; i < 4; i++ ) {
-    // movimiento de traslación
-    ArLog::log( ArLog::Normal, "Moviéndose 4 metros..." );
-    robot.lock();
-    robot.move( tra );
-    robot.unlock();
-    // no continúa hasta que se haya realizado completamente el movimiento
-    while( 1 ) {
-      robot.lock();
-      if( robot.isMoveDone() ) {
-        robot.unlock();
-        break;
-      }
-      robot.unlock();
-      ArUtil::sleep( 150 );
-    }
-    ArUtil::sleep( 2000 );
+  /* realización del circulo */
+  robot.lock();
+  robot.setRotVel( rotation );
+  robot.unlock();
+  robot.lock();
+  robot.setVel( speed );
+  robot.unlock();
+  ArUtil::sleep( time_needed * 1000 );
+  robot.stop();
 
-    // movimiento de rotación
-    ArLog::log( ArLog::Normal, "Girando 90 grados..." );
-    robot.lock();
-    robot.setHeading( rot );
-    robot.unlock();
-    // no continúa hasta que se haya realizado completamente el giro
-    while( 1 ) {
-      robot.lock();
-      if( robot.isHeadingDone() ) {
-        robot.unlock();
-        break;
-      }
-      robot.unlock();
-      ArUtil::sleep( 150 );
-    }
-    ArUtil::sleep( 2000 );
-    rot += 90;
-  }
   ArLog::log( ArLog::Normal, "Simulación terminada" );
 
   // terminación de Aria
