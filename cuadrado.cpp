@@ -31,7 +31,7 @@ void checkConnection( ArRobotConnector &connector ) {
 int main( int argc, char** argv ) {
   // grados de giro y cantidad de traslación
   int rot = 90;
-  //int tra = 4000;
+  int tra = 4000;
 
   // inicializar la libreria de Aria
   Aria::init();
@@ -69,7 +69,7 @@ int main( int argc, char** argv ) {
     // movimiento de traslación
     ArLog::log( ArLog::Normal, "Moviéndose 4 metros..." );
     robot.lock();
-    robot.move( 4000 );
+    robot.move( tra );
     robot.unlock();
     // no continúa hasta que se haya realizado completamente el movimiento
     while( 1 ) {
@@ -99,7 +99,6 @@ int main( int argc, char** argv ) {
       ArUtil::sleep( 150 );
     }
     ArUtil::sleep( 2000 );
-    // suma 90 grados para realizar el siguiente giro
     rot += 90;
   }
   ArLog::log( ArLog::Normal, "Simulación terminada" );
