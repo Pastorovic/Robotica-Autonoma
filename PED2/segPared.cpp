@@ -1,9 +1,9 @@
 /***********************************************************
- *    Name:         evObsFrontal.cpp                       *
+ *    Name:         segPared.cpp                           *
  *    Title:        Control simple del movimiento mediante *
  *                  percepción                             *
- *    Description:  El robot evita obstáculos girando      *
- *                  90 grados cuando encuentra uno         *
+ *    Description:  El robot sigue de manera paralela      *
+ *                  la pared que se encuentre a su lado    *
  *    Author:       David Pastor Sanz                      *
  ***********************************************************/
 
@@ -77,18 +77,18 @@ int choosePath( int &dir ) {
  }
 
 int main( int argc, char** argv ) {
-    // Genera números aleatorios para elegir la dirección
-    srand( time( NULL ) );
-    // Distancia y ángulo medidos por el laser al detectar un obstáculo
-    int distance;
-    double angle;
+    // Distancia deseada
+    const int D = 1000;
+    // Diferencia entre la distancia real y la deseada (5-50cm)
+    // Se ha optado por elegir 25 cm para que no exista demasiado
+    // sobreajuste
+    const int U = 250;
     // Almacena los grados de rotación girados
     int rot = 0;
-    // Define la dirección a la que irá. -1 indica que empieza yendoi recto
+    // Distancias leidas en frente, a izquierda y a derecha
+    int dis, disL, disR;
+    // Dirección aleatoria que tomará
     int dir = -1;
-    // Lleva la cuenta del tiempo de una acción
-    ArTime start;
-
 
     // inicializar la libreria de Aria
     Aria::init();
@@ -134,17 +134,18 @@ int main( int argc, char** argv ) {
     ArUtil::sleep( 500 );
 
     while( 1 ) {
-        // Calcula la distancia más cercana en la que se encuentra un obstáculo
-        // como solo se usa el laser frontal que abarca 45 grados se toma la medida
-        // entre 0-(45/2) y 0+(45/2)
-        // además almacena en angle el ángulo en el que se encuentra
-        distance = ( *laser ).currentReadingPolar( -22.5, 22.5, &angle );
+        // Calcula la distancia más cercana en la que se encuentra una pared
+        // tanto a izquieda, como a derecha
+        // en esta ocasión se ha prescindido de obtener el ángulo
+        // a que se encuentra la pared
+        dis  = ( *laser ).currentReadingPolar( -22.5, 22.5, NULL );
+        disL = ( *laser ).currentReadingPolar( -90, -85, NULL );
+        disR = ( *laser ).currentReadingPolar(  85,  90, NULL );
 
-        // Si se encuentra un objeto a menos de 1 metro de distancia
-        if( distance < 1000 ){
-            ArLog::log( ArLog::Normal, "Obstáculo encontrado" );
-            ArLog::log( ArLog::Normal, "  -Distancia: %.2f m", ( float )distance/1000 );
-            ArLog::log( ArLog::Normal, "  -Angulo:    %.2f grados", angle );
+        // Si se encuentra una pared a menos de 1 metro de distancia
+        if( dis < 1000  ){
+            ArLog::log( ArLog::Normal, "Pared encontrado" );
+            ArLog::log( ArLog::Normal, "  -Distancia: %.2f m", ( float )dis/1000 );
             //Paramos el robot
             robot.lock();
             robot.stop();
@@ -156,10 +157,46 @@ int main( int argc, char** argv ) {
             robot.unlock();
             waitToTurn( robot );
         }
-        // una vez no se tiene ningún obstáculo delante se sigue en línea recta
         else {
-            // se vuelve a poner la dirección frontal
-            dir = -1;
+            // Si anteriormente giramos a izquierdas. Leemos sensor derecho
+            if( dir == 0 ) {
+                // Si estoy demasiado cerca de la pared giramos un grado más
+                if( disR < ( D - U ) ) {
+                    rot += 1;
+                    robot.lock();
+                    robot.setHeading( rot );
+                    robot.unlock();
+                    waitToTurn( robot );
+                }
+                // Si estoy demasiado lejos de la pared giramos un grado menos
+                else if( disR > ( D + U ) ) {
+                    rot -= 1;
+                    robot.lock();
+                    robot.setHeading( rot );
+                    robot.unlock();
+                    waitToTurn( robot );
+                }
+            }
+            // Si anteriormente giramos a derechas. Leemos sensor izquierdo
+            else if( dir == 1 ) {
+                // Si estoy demasiado cerca de la pared giramos un grado más
+                if( disL < ( D - U ) ) {
+                    rot += 1;
+                    robot.lock();
+                    robot.setHeading( rot );
+                    robot.unlock();
+                    waitToTurn( robot );
+                }
+                // Si estoy demasiado lejos de la pared giramos un grado menos
+                else if( disL > ( D + U ) ) {
+                    rot -= 1;
+                    robot.lock();
+                    robot.setHeading( rot );
+                    robot.unlock();
+                    waitToTurn( robot );
+                }
+            }
+            // Continuamos de frente
             robot.lock();
             robot.setVel( 300 );
             robot.unlock();

@@ -29,6 +29,30 @@ void checkConnection( ArRobotConnector &connector ) {
   return;
 }
 
+/*********************************************
+ * Espera hasta que realiza un giro completo *
+ * o hayan pasado 5 segundos                 *
+ *********************************************/
+ void waitToTurn( ArRobot &robot ) {
+     ArTime start;
+     start.setToNow();
+     while( 1 ){
+         robot.lock();
+         if( robot.isHeadingDone( 5 ) ) {
+             robot.unlock();
+             break;
+         }
+         if( start.mSecSince() > 5000 ) {
+             robot.unlock();
+             break;
+         }
+         robot.unlock();
+         ArUtil::sleep( 50 );
+     }
+     ArUtil::sleep( 100 );
+     return;
+ }
+
 int main( int argc, char** argv ) {
   // grados de giro y cantidad de traslación
   int rot = 90;
@@ -90,16 +114,7 @@ int main( int argc, char** argv ) {
     robot.setHeading( rot );
     robot.unlock();
     // no continúa hasta que se haya realizado completamente el giro
-    while( 1 ) {
-      robot.lock();
-      if( robot.isHeadingDone() ) {
-        robot.unlock();
-        break;
-      }
-      robot.unlock();
-      ArUtil::sleep( 150 );
-    }
-    ArUtil::sleep( 2000 );
+    waitToTurn( )
     rot += 90;
   }
   ArLog::log( ArLog::Normal, "Simulación terminada" );
