@@ -6,7 +6,7 @@
  *    Author:       David Pastor Sanz                     *
  **********************************************************/
 
-#include "/usr/local/Aria/include/Aria.h"
+#include "Aria.h"
 
 /********************************************************
  * Termina la ejecución devolviendo un mensaje de error *

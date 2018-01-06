@@ -6,7 +6,7 @@
  *    Author:       David Pastor Sanz                     *
  **********************************************************/
 
-#include "/usr/local/Aria/include/Aria.h"
+#include "Aria.h"
 
 /********************************************************
  * Termina la ejecución devolviendo un mensaje de error *
@@ -31,6 +31,9 @@ void checkConnection( ArRobotConnector &connector ) {
 
 int main( int argc, char** argv ) {
   // variables necesarias
+  // se realiza mediante el cálculo del perímetro de la circunferencia
+  // y la velocidad a la que se desplaza el robot, así va girando en función
+  // al tiempo que necesita
   const float PI = 3.1415;
   float radio = 2;
   float speed = 500;
